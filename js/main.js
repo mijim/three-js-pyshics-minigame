@@ -67,7 +67,7 @@ function setupGraphics() {
   dirLight.color.setHSL(0.1, 1, 0.95);
   dirLight.position.set(-10, 10, 5);
   dirLight.position.multiplyScalar(100);
-  scene.add(dirLight);
+  //scene.add(dirLight);
 
   dirLight.castShadow = true;
 
@@ -301,9 +301,6 @@ function moveBall() {
   ) {
     camera.fov = camera.fov > 50 ? camera.fov - 0.5 : camera.fov + 0.5;
     camera.updateProjectionMatrix(); //CHECK THIS FROR PERFORMANCE
-  }
-
-  if (moveDirection.back) {
   }
 
   let moveX = moveDirection.forward
