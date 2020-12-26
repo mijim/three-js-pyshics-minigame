@@ -1,15 +1,80 @@
 <html>
   <head>
     <meta charset="utf-8" />
-    <title>JS 3D Physics</title>
+    <title>Ball game</title>
+    <link rel="preconnect" href="https://fonts.gstatic.com" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700;800;900&display=swap"
+      rel="stylesheet"
+    />
     <style>
       body {
         margin: 0;
+        font-family: "Orbitron", sans-serif;
+      }
+
+      #menu-container {
+        display: flex;
+        position: fixed;
+        width: 100vw;
+        z-index: 2;
+        height: 100vh;
+        background: rgba(0, 0, 0, 0.4);
+        backdrop-filter: blur(12px);
+        justify-content: center;
+        align-items: center;
+        flex-direction: column;
+      }
+
+      .title {
+        font-size: 42px;
+        color: white;
+        font-weight: bold;
+        margin-bottom: 30px;
+      }
+
+      .button {
+        cursor: pointer;
+        font-size: 24px;
+        color: white;
+        padding: 32px;
+        border: 2px solid white;
+        text-align: center;
+        width: 200px;
+        margin-bottom: 15px;
+      }
+
+      .button:hover {
+        background: rgba(255, 255, 255, 0.2);
+      }
+
+      .selected-button {
+        cursor: initial;
+        background: rgba(255, 255, 255, 0.4) !important;
       }
     </style>
   </head>
   <body>
+    <div id="menu-container">
+      <div class="title">Quality</div>
+      <div
+        id="low-quality-button"
+        class="button"
+        onclick="handleQualityClick('high')"
+      >
+        High
+      </div>
+      <div
+        id="high-quality-button"
+        class="button selected-button"
+        onclick="handleQualityClick('low')"
+      >
+        Low
+      </div>
+    </div>
+
     <script src="js/three.js"></script>
+    <script src="js/GLTFLoader.js"></script>
     <script src="js/OrbitControls.js"></script>
     <script src="js/ammo.js"></script>
     <script src="js/stats.min.js"></script>

@@ -5,6 +5,16 @@ const center = new THREE.Vector3(0, 0, 0);
 const worldPos = new THREE.Vector3(0, 0, 0);
 const quat = new THREE.Quaternion();
 const matrix = new THREE.Matrix4();
+
+function changeQuality(quality) {
+  if (quality === "low") {
+    scene.remove(dirLight);
+  }
+  if (quality === "high") {
+    scene.add(dirLight);
+  }
+}
+
 function setupPhysicsWorld() {
   softBodies = [];
   rigidBodies = [];
@@ -59,29 +69,28 @@ function setupGraphics() {
   scene.add(new THREE.AxesHelper(500));
 
   //Add hemisphere light
-  let hemiLight = new THREE.HemisphereLight(0xffeeb1, 0x080820, 2);
+  let hemiLight = new THREE.HemisphereLight(0xffeeb1, 0x080820, 1);
   scene.add(hemiLight);
 
   //Add directional light
-  let dirLight = new THREE.DirectionalLight(0xffffff, 0.2);
+  dirLight = new THREE.DirectionalLight(0xffffff, 1);
   dirLight.color.setHSL(0.1, 1, 0.95);
-  dirLight.position.set(-10, 10, 5);
+  dirLight.position.set(-1, 1.75, 1);
   dirLight.position.multiplyScalar(100);
-  //scene.add(dirLight);
 
   dirLight.castShadow = true;
 
-  dirLight.shadow.mapSize.width = 1024;
-  dirLight.shadow.mapSize.height = 1024;
+  dirLight.shadow.mapSize.width = 2048;
+  dirLight.shadow.mapSize.height = 2048;
 
-  let d = 20;
+  let d = 50;
 
   dirLight.shadow.camera.left = -d;
   dirLight.shadow.camera.right = d;
   dirLight.shadow.camera.top = d;
   dirLight.shadow.camera.bottom = -d;
 
-  dirLight.shadow.camera.far = 50;
+  dirLight.shadow.camera.far = 13500;
 
   //Setup the renderer
   renderer = new THREE.WebGLRenderer({ antialias: true });
@@ -108,65 +117,88 @@ function onWindowResize() {
 }
 
 function addObjects() {
-  const loader = new THREE.TextureLoader();
-
-  /** GROUND */
-  pos.set(0, -0.5, 0);
-  quat.set(0, 0, 0, 1);
-  var ground = createBoxCollider(
-    100,
-    1,
-    100,
-    0,
-    pos,
-    quat,
-    new THREE.MeshPhongMaterial({ color: 0xdbc795 })
-  );
-  ground.castShadow = true;
-  ground.receiveShadow = true;
-
-  /** OBSTACLES */
-  pos.set(0, -0.5, 0);
-  quat.setFromAxisAngle(new THREE.Vector3(0, 0, 1), (10 * Math.PI) / 180);
-  var ground = createBoxCollider(
-    40,
-    1,
-    1,
-    0,
-    pos,
-    quat,
-    new THREE.MeshPhongMaterial({ color: 0x363535 })
-  );
-  ground.castShadow = true;
-  ground.receiveShadow = true;
-
-  pos.set(15, 2, 10);
-  quat.setFromAxisAngle(new THREE.Vector3(0, 0, 1), Math.PI / 360);
-  var ground = createBoxCollider(
-    1,
-    1,
-    40,
-    0,
-    pos,
-    quat,
-    new THREE.MeshPhongMaterial({ color: 0x363535 })
-  );
-  ground.castShadow = true;
-  ground.receiveShadow = true;
-
   /** PLAYER BALL */
 
   var volumeMass = 15;
-  var sphereGeometry = new THREE.SphereBufferGeometry(1.5, 40, 25);
+  var sphereGeometry = new THREE.SphereBufferGeometry(1.5, 30, 20);
   sphereGeometry.translate(5, 5, 0);
   var texture = new THREE.TextureLoader().load("textures/player_texture.jpg");
   var material = new THREE.MeshPhongMaterial({ map: texture });
 
-  playerBall = createSoftVolume(sphereGeometry, volumeMass, 250, material);
-  scene.add(playerBall);
+  const loader = new THREE.TextureLoader();
+  playerBall = {};
   loader.load("textures/player_texture.jpg", function (texture) {
     material.map = texture;
   });
+
+  const GLTFLoader = new THREE.GLTFLoader();
+  const boxMaterial = new THREE.MeshPhongMaterial({ color: 0xdbc795 });
+  const groundMaterial = new THREE.MeshPhongMaterial({ color: 0x242424 });
+
+  GLTFLoader.load("../blender_models/level1.gltf", (gltf) => {
+    console.log("gltf --> ", gltf);
+
+    gltf.scene.children.forEach((child) => {
+      console.log("child --> ", child);
+      const box = createBoxCollider(
+        child.scale.x * 2,
+        child.scale.y * 2,
+        child.scale.z * 2,
+        0,
+        child.position,
+        child.quaternion,
+        child.name === "ground" ? groundMaterial : boxMaterial
+      );
+      box.castShadow = true;
+      box.receiveShadow = true;
+    });
+    playerBall = createSoftVolume(sphereGeometry, volumeMass, 250, material);
+    scene.add(playerBall);
+  });
+
+  /** GROUND */
+  // pos.set(0, -0.5, 0);
+  // quat.set(0, 0, 0, 1);
+  // var ground = createBoxCollider(
+  //   100,
+  //   1,
+  //   100,
+  //   0,
+  //   pos,
+  //   quat,
+  //   new THREE.MeshPhongMaterial({ color: 0xdbc795 })
+  // );
+  // ground.castShadow = true;
+  // ground.receiveShadow = true;
+
+  /** OBSTACLES */
+  // pos.set(0, -0.5, 0);
+  // quat.setFromAxisAngle(new THREE.Vector3(0, 0, 1), (10 * Math.PI) / 180);
+  // var ground = createBoxCollider(
+  //   40,
+  //   1,
+  //   1,
+  //   0,
+  //   pos,
+  //   quat,
+  //   new THREE.MeshPhongMaterial({ color: 0x363535 })
+  // );
+  // ground.castShadow = true;
+  // ground.receiveShadow = true;
+
+  // pos.set(15, 2, 10);
+  // quat.setFromAxisAngle(new THREE.Vector3(0, 0, 1), Math.PI / 360);
+  // var ground = createBoxCollider(
+  //   1,
+  //   1,
+  //   40,
+  //   0,
+  //   pos,
+  //   quat,
+  //   new THREE.MeshPhongMaterial({ color: 0x363535 })
+  // );
+  // ground.castShadow = true;
+  // ground.receiveShadow = true;
 }
 
 function updatePhysics(deltaTime) {
@@ -233,6 +265,7 @@ function updatePhysics(deltaTime) {
 }
 
 function renderFrame() {
+  if (pauseGame) return;
   let deltaTime = clock.getDelta();
   stats.update();
   moveBall();
@@ -274,7 +307,9 @@ function cameraUpdate() {
       Math.PI + rotValue
     );
   }
-  cameraGroup.position.lerp(playerBall.calcPosition, 0.2);
+  if (playerBall.calcPosition) {
+    cameraGroup.position.lerp(playerBall.calcPosition, 0.2);
+  }
 }
 
 var period = 1;
