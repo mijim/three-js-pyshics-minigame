@@ -66,14 +66,14 @@ function setupGraphics() {
   //controls = new THREE.OrbitControls(camera);
   //controls.enabled = false;
 
-  scene.add(new THREE.AxesHelper(500));
+  //scene.add(new THREE.AxesHelper(500));
 
   //Add hemisphere light
   let hemiLight = new THREE.HemisphereLight(0xffeeb1, 0x080820, 1);
   scene.add(hemiLight);
 
   //Add directional light
-  dirLight = new THREE.DirectionalLight(0xffffff, 1);
+  dirLight = new THREE.DirectionalLight(0xffffff, 0.8);
   dirLight.color.setHSL(0.1, 1, 0.95);
   dirLight.position.set(-1, 1.75, 1);
   dirLight.position.multiplyScalar(100);
@@ -282,7 +282,7 @@ function cameraUpdate() {
   if (moveDirection.right) {
     cameraGroup.rotateY(-rotSpeed);
     if (rotValue > -0.02) {
-      rotValue -= 0.001;
+      rotValue -= 0.002;
       camera.rotation.set(
         camera.rotation.x,
         camera.rotation.y,
@@ -292,7 +292,7 @@ function cameraUpdate() {
   } else if (moveDirection.left) {
     cameraGroup.rotateY(rotSpeed);
     if (rotValue > -0.02) {
-      rotValue += 0.001;
+      rotValue += 0.002;
       camera.rotation.set(
         camera.rotation.x,
         camera.rotation.y,
@@ -300,7 +300,7 @@ function cameraUpdate() {
       );
     }
   } else if (rotValue !== 0) {
-    rotValue = rotValue > 0 ? rotValue - 0.001 : rotValue + 0.001;
+    rotValue = rotValue > 0 ? rotValue - 0.003 : rotValue + 0.003;
     camera.rotation.set(
       camera.rotation.x,
       camera.rotation.y,
@@ -348,7 +348,7 @@ function moveBall() {
     : moveDirection.back
     ? -dir.z * vel
     : 0;
-  let moveY = moveDirection.down === 1 ? -2 : 0;
+  let moveY = moveDirection.down === 1 ? -4 : 0;
 
   if (moveX == 0 && moveY == 0 && moveZ == 0) return;
 

@@ -14,7 +14,7 @@
       }
 
       #menu-container {
-        display: flex;
+        display: none;
         position: fixed;
         width: 100vw;
         z-index: 2;
@@ -35,41 +35,107 @@
 
       .button {
         cursor: pointer;
-        font-size: 24px;
         color: white;
-        padding: 32px;
-        border: 2px solid white;
-        text-align: center;
-        width: 200px;
+        /* border: 2px solid white; */
+        width: 240px;
         margin-bottom: 15px;
+        clip-path: polygon(
+          11% 0,
+          80% 0%,
+          100% 0,
+          100% 100%,
+          80% 100%,
+          20% 100%,
+          0 100%,
+          0 45%
+        );
+        background: rgba(0, 0, 0, 0.4);
+        padding: 4px;
       }
 
-      .button:hover {
+      .button-inner {
+        padding: 24px;
+        text-align: center;
+        font-size: 28px;
+        clip-path: polygon(
+          11% 0,
+          80% 0%,
+          100% 0,
+          100% 100%,
+          80% 100%,
+          20% 100%,
+          0 100%,
+          0 45%
+        );
         background: rgba(255, 255, 255, 0.2);
       }
 
+      .button-inner:hover {
+        background: rgba(255, 255, 255, 0.3);
+      }
+
       .selected-button {
-        cursor: initial;
-        background: rgba(255, 255, 255, 0.4) !important;
+        cursor: default;
+        background: rgba(255, 255, 255, 0.45) !important;
+      }
+
+      .legend-container {
+        position: fixed;
+        z-index: 1;
+        bottom: 10px;
+        right: 10px;
+        border: 2px solid white;
+        background: rgba(0, 0, 0, 0.2);
+        padding: 12px;
+        width: 240px;
+        color: white;
+        font-size: 20px;
+      }
+      .legend-item {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 4px;
+      }
+      .legend-item:last-child {
+        margin-bottom: 0px;
       }
     </style>
   </head>
   <body>
     <div id="menu-container">
       <div class="title">Quality</div>
-      <div
-        id="low-quality-button"
-        class="button"
-        onclick="handleQualityClick('high')"
-      >
-        High
+      <div class="button">
+        <div
+          id="high-quality-button"
+          class="button-inner"
+          onclick="handleQualityClick('high')"
+        >
+          High
+        </div>
       </div>
-      <div
-        id="high-quality-button"
-        class="button selected-button"
-        onclick="handleQualityClick('low')"
-      >
-        Low
+      <div class="button">
+        <div
+          id="low-quality-button"
+          class="button-inner selected-button"
+          onclick="handleQualityClick('low')"
+        >
+          Low
+        </div>
+      </div>
+    </div>
+
+    <div class="legend-container">
+      <div class="legend-item">
+        <div class="legend-title">Move:</div>
+        <div class="legend-text">W, A, S, D</div>
+      </div>
+      <div class="legend-item">
+        <div class="legend-title">Crouch:</div>
+        <div class="legend-text">Space</div>
+      </div>
+      <div class="legend-item">
+        <div class="legend-title">Menu:</div>
+        <div class="legend-text">ESC</div>
       </div>
     </div>
 

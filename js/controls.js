@@ -13,11 +13,11 @@ function setupEventHandlers() {
 }
 
 function handleQualityClick(quality) {
-  if (quality === "low") {
+  if (quality === "high") {
     highQualityButton.classList.add("selected-button");
     lowQualityButton.classList.remove("selected-button");
   }
-  if (quality === "high") {
+  if (quality === "low") {
     highQualityButton.classList.remove("selected-button");
     lowQualityButton.classList.add("selected-button");
   }
