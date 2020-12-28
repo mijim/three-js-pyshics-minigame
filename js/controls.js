@@ -1,6 +1,9 @@
 const menuContainer = document.getElementById("menu-container");
 const highQualityButton = document.getElementById("high-quality-button");
 const lowQualityButton = document.getElementById("low-quality-button");
+const playerMoveSound = new Audio("../sounds/player-move.mp3");
+playerMoveSound.loop = true;
+playerMoveSound.volume = 0.8;
 
 function setupEventHandlers() {
   moveDirection = { left: 0, right: 0, forward: 0, back: 0, down: 0 };
@@ -33,10 +36,14 @@ function handleKeyDown(event) {
   switch (keyCode) {
     case 87: //W: FORWARD
       moveDirection.forward = 1;
+      clearTimeout(timeoutInstance);
+      playerMoveSound.play();
       break;
 
     case 83: //S: BACK
       moveDirection.back = 1;
+      clearTimeout(timeoutInstance);
+      playerMoveSound.play();
       break;
 
     case 65: //A: LEFT
@@ -62,17 +69,23 @@ function handleKeyDown(event) {
       break;
   }
 }
-
+let = timeoutInstance;
 function handleKeyUp(event) {
   let keyCode = event.keyCode;
 
   switch (keyCode) {
     case 87: //FORWARD
       moveDirection.forward = 0;
+      timeoutInstance = setTimeout(() => {
+        playerMoveSound.pause();
+      }, 2000);
       break;
 
     case 83: //BACK
       moveDirection.back = 0;
+      timeoutInstance = setTimeout(() => {
+        playerMoveSound.pause();
+      }, 2000);
       break;
 
     case 65: //LEFT
