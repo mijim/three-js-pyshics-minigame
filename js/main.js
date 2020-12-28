@@ -6,6 +6,8 @@ const worldPos = new THREE.Vector3(0, 0, 0);
 const quat = new THREE.Quaternion();
 const matrix = new THREE.Matrix4();
 
+const initalPos = new THREE.Vector3(7, 0, 0);
+
 function changeQuality(quality) {
   if (quality === "low") {
     scene.remove(dirLight);
@@ -121,7 +123,7 @@ function addObjects() {
 
   var volumeMass = 15;
   var sphereGeometry = new THREE.SphereBufferGeometry(1.5, 40, 25);
-  sphereGeometry.translate(5, 5, 0);
+  sphereGeometry.translate(initalPos.x, initalPos.y, initalPos.z);
   var texture = new THREE.TextureLoader().load("textures/player_texture.jpg");
   var material = new THREE.MeshStandardMaterial({
     map: texture,
@@ -358,8 +360,37 @@ function cameraUpdate() {
 var period = 1;
 const vel = 2;
 
+function restartBall() {
+  console.log("playerBall.userData --> ", playerBall.userData);
+  physicsWorld.removeSoftBody(playerBall.userData.physicsBody);
+  scene.remove(playerBall);
+  var volumeMass = 15;
+  var sphereGeometry = new THREE.SphereBufferGeometry(1.5, 40, 25);
+  sphereGeometry.translate(initalPos.x, initalPos.y, initalPos.z);
+  var texture = new THREE.TextureLoader().load("textures/player_texture.jpg");
+  var material = new THREE.MeshStandardMaterial({
+    map: texture,
+    roughness: 0.4,
+    metalness: 0.8,
+    envMaps: "reflection",
+    //emissive: 0x494949,
+  });
+
+  const loader = new THREE.TextureLoader();
+  loader.load("textures/player_texture.jpg", function (texture) {
+    material.map = texture;
+    playerBall = createSoftVolume(sphereGeometry, volumeMass, 250, material);
+    scene.add(playerBall);
+  });
+}
+
 function moveBall() {
   let scalingFactor = 0.2;
+
+  if (playerBall.calcPosition && playerBall.calcPosition.y <= -10) {
+    restartBall();
+  }
+
   if (camera.position && playerBall.calcPosition) {
     dir
       .subVectors(playerBall.calcPosition, camera.getWorldPosition(worldPos))
