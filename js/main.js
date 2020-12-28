@@ -52,7 +52,7 @@ function setupGraphics() {
   //create camera
   camera = new THREE.PerspectiveCamera(
     50,
-    window.innerWidth / 10 / (window.innerHeight / 10),
+    window.innerWidth / 20 / (window.innerHeight / 20),
     0.2,
     5000
   );
@@ -110,7 +110,7 @@ function setupGraphics() {
 }
 
 function onWindowResize() {
-  camera.aspect = window.innerWidth / window.innerHeight;
+  camera.aspect = window.innerWidth / 20 / (window.innerHeight / 20);
   camera.updateProjectionMatrix();
 
   renderer.setSize(window.innerWidth, window.innerHeight);
@@ -120,10 +120,16 @@ function addObjects() {
   /** PLAYER BALL */
 
   var volumeMass = 15;
-  var sphereGeometry = new THREE.SphereBufferGeometry(1.5, 30, 20);
+  var sphereGeometry = new THREE.SphereBufferGeometry(1.5, 40, 25);
   sphereGeometry.translate(5, 5, 0);
   var texture = new THREE.TextureLoader().load("textures/player_texture.jpg");
-  var material = new THREE.MeshPhongMaterial({ map: texture });
+  var material = new THREE.MeshStandardMaterial({
+    map: texture,
+    roughness: 0.4,
+    metalness: 0.8,
+    envMaps: "reflection",
+    //emissive: 0x494949,
+  });
 
   const loader = new THREE.TextureLoader();
   playerBall = {};
@@ -132,7 +138,11 @@ function addObjects() {
   });
 
   const GLTFLoader = new THREE.GLTFLoader();
-  const boxMaterial = new THREE.MeshPhongMaterial({ color: 0xdbc795 });
+  let boxMaterial = new THREE.MeshStandardMaterial({
+    color: 0xdbc75,
+    roughness: 0.2,
+    metalness: 0,
+  });
   const groundMaterial = new THREE.MeshPhongMaterial({ color: 0x242424 });
 
   GLTFLoader.load("../blender_models/level1.gltf", (gltf) => {
@@ -140,6 +150,7 @@ function addObjects() {
 
     gltf.scene.children.forEach((child) => {
       console.log("child --> ", child);
+
       const box = createBoxCollider(
         child.scale.x * 2,
         child.scale.y * 2,
@@ -151,6 +162,38 @@ function addObjects() {
       );
       box.castShadow = true;
       box.receiveShadow = true;
+
+      // boxMaterial = new THREE.ShaderMaterial({
+      //   uniforms: {
+      //     size: {
+      //       value: new THREE.Vector3(
+      //         box.geometry.parameters.width,
+      //         box.geometry.parameters.height,
+      //         box.geometry.parameters.depth
+      //       ).multiplyScalar(0.5),
+      //     },
+      //     thickness: {
+      //       value: 0.01,
+      //     },
+      //     smoothness: {
+      //       value: 0.2,
+      //     },
+      //   },
+      //   vertexShader: sketchVertexShadersketchFragmentShader,
+      //   fragmentShader: sketchVertexShader,
+      // });
+      // var geo = new THREE.EdgesGeometry(box.geometry);
+      // var mat = new THREE.LineBasicMaterial({ color: 0x000000, linewidth: 12 });
+      // var wireframe = new THREE.LineSegments(geo, mat);
+      // wireframe.renderOrder = 1; // make sure wireframes are rendered 2nd
+      // box.add(wireframe);
+
+      // const line = new MeshLine();
+      // line.setPoints(box.geometry);
+      // line.setPoints(box.geometry, (p) => 2); // makes width 2 * lineWidth
+      // const material = new MeshLineMaterial();
+      // const mesh = new THREE.Mesh(line, material);
+      // scene.add(mesh);
     });
     playerBall = createSoftVolume(sphereGeometry, volumeMass, 250, material);
     scene.add(playerBall);
@@ -282,7 +325,7 @@ function cameraUpdate() {
   if (moveDirection.right) {
     cameraGroup.rotateY(-rotSpeed);
     if (rotValue > -0.02) {
-      rotValue -= 0.002;
+      rotValue -= 0.001;
       camera.rotation.set(
         camera.rotation.x,
         camera.rotation.y,
@@ -292,7 +335,7 @@ function cameraUpdate() {
   } else if (moveDirection.left) {
     cameraGroup.rotateY(rotSpeed);
     if (rotValue > -0.02) {
-      rotValue += 0.002;
+      rotValue += 0.001;
       camera.rotation.set(
         camera.rotation.x,
         camera.rotation.y,
@@ -300,7 +343,7 @@ function cameraUpdate() {
       );
     }
   } else if (rotValue !== 0) {
-    rotValue = rotValue > 0 ? rotValue - 0.003 : rotValue + 0.003;
+    rotValue = rotValue > 0 ? rotValue - 0.001 : rotValue + 0.001;
     camera.rotation.set(
       camera.rotation.x,
       camera.rotation.y,
