@@ -52,7 +52,7 @@ function setupGraphics() {
   //create camera
   camera = new THREE.PerspectiveCamera(
     50,
-    window.innerWidth / window.innerHeight,
+    window.innerWidth / 10 / (window.innerHeight / 10),
     0.2,
     5000
   );
@@ -80,8 +80,8 @@ function setupGraphics() {
 
   dirLight.castShadow = true;
 
-  dirLight.shadow.mapSize.width = 2048;
-  dirLight.shadow.mapSize.height = 2048;
+  dirLight.shadow.mapSize.width = 4096;
+  dirLight.shadow.mapSize.height = 4096;
 
   let d = 50;
 
