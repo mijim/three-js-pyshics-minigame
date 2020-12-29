@@ -1,26 +1,35 @@
 sketchFragmentShader = `
-precision highp float;
-	
-varying vec2 vUv;
-	
-uniform vec3 u_c1;
-uniform vec3 u_c2;
-uniform float u_time;
-
-void main() {
-    vec3 pX = vec3(vUv.x);
-    vec3 pY = vec3(vUv.y);
-	
-	vec3 c1 = u_c1;
-	vec3 c2 = u_c2;
-	vec3 c3 = vec3(0.0, 1.0, 1.0); // aqua
-	
-    vec3 cmix1 = mix(c1, c2, pX + pY/2. + cos(u_time));
-	vec3 cmix2 = mix(c2, c3, (pY - sin(u_time))*0.5);
-	vec3 color = mix(cmix1, cmix2, pX * cos(u_time+2.));
-
-    gl_FragColor = vec4(color, 1.0);
-}
+precision mediump float;
+  uniform float scrollOffset=0.5;
+  uniform float refractionAmount=0.5;
+  
+  // our textures
+  uniform sampler2D u_normal=0.5;
+  uniform sampler2D u_diffuse=0.5;
+  uniform sampler2D u_reflection=0.5;
+  
+  varying vec2 v_texCoord;
+  
+  void main() {
+    vec4 diffuse = texture2D(u_diffuse, v_texCoord);
+    vec4 normal = texture2D(u_normal, v_texCoord);
+    
+    float u = normal.r * 16.0;
+    float v = normal.g * 16.0;
+    u += floor(normal.b * 16.0) * 16.0;
+    v += mod(normal.b * 255.0, 16.0) * 16.0;
+    u = u / 255.0;
+    v = v / 255.0;
+    
+    vec2 p = vec2(u, v + scrollOffset);
+    vec4 reflect = texture2D(u_reflection, p);
+    reflect.a = normal.a;
+    
+    vec4 col = mix(diffuse, reflect, normal.a - diffuse.a);
+    col.a += normal.a;
+    
+    gl_FragColor = col;
+  }
 
 `;
 

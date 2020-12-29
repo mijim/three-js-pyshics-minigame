@@ -97,7 +97,7 @@ function setupGraphics() {
   //Setup the renderer
   renderer = new THREE.WebGLRenderer({ antialias: true });
   renderer.setClearColor(0xbfd1e5);
-  renderer.setPixelRatio(window.devicePixelRatio);
+  renderer.setPixelRatio(window.devicePixelRatio / 2);
   renderer.setSize(window.innerWidth, window.innerHeight);
   document.body.appendChild(renderer.domElement);
 
@@ -128,8 +128,10 @@ function addObjects() {
   var material = new THREE.MeshStandardMaterial({
     map: texture,
     roughness: 0.4,
-    metalness: 0.8,
+    metalness: 0.7,
+    clearcoat: 0.57,
     envMaps: "reflection",
+    clearcoatRoughness: 0.6,
     //emissive: 0x494949,
   });
 
@@ -141,11 +143,30 @@ function addObjects() {
 
   const GLTFLoader = new THREE.GLTFLoader();
   let boxMaterial = new THREE.MeshStandardMaterial({
-    color: 0xdbc75,
     roughness: 0.2,
     metalness: 0,
+    envMaps: "refraction",
+    transparent: true,
+    reflectivity: 0.5,
+    refractionRatio: 0.5,
   });
-  const groundMaterial = new THREE.MeshPhongMaterial({ color: 0x242424 });
+  loader.load("textures/Leather_weave_002_basecolor.jpg", function (texture) {
+    boxMaterial.map = texture;
+  });
+  loader.load("textures/Leather_weave_002_normal.jpg", function (texture) {
+    boxMaterial.normalMap = texture;
+  });
+  loader.load("textures/Leather_weave_002_roughness.jpg", function (texture) {
+    boxMaterial.roughnessMap = texture;
+  });
+  loader.load(
+    "textures/Leather_weave_002_ambientOcclusion.jpg",
+    function (texture) {
+      boxMaterial.aoMap = texture;
+    }
+  );
+
+  const groundMaterial = new THREE.MeshStandardMaterial({ color: 0x242424 });
 
   GLTFLoader.load("../blender_models/level1.gltf", (gltf) => {
     console.log("gltf --> ", gltf);
@@ -166,23 +187,9 @@ function addObjects() {
       box.receiveShadow = true;
 
       // boxMaterial = new THREE.ShaderMaterial({
-      //   uniforms: {
-      //     size: {
-      //       value: new THREE.Vector3(
-      //         box.geometry.parameters.width,
-      //         box.geometry.parameters.height,
-      //         box.geometry.parameters.depth
-      //       ).multiplyScalar(0.5),
-      //     },
-      //     thickness: {
-      //       value: 0.01,
-      //     },
-      //     smoothness: {
-      //       value: 0.2,
-      //     },
-      //   },
-      //   vertexShader: sketchVertexShadersketchFragmentShader,
-      //   fragmentShader: sketchVertexShader,
+      //   uniforms: {},
+      //   vertexShader: sketchVertexShader,
+      //   fragmentShader: sketchFragmentShader,
       // });
       // var geo = new THREE.EdgesGeometry(box.geometry);
       // var mat = new THREE.LineBasicMaterial({ color: 0x000000, linewidth: 12 });

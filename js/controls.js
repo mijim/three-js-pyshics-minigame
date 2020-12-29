@@ -78,14 +78,14 @@ function handleKeyUp(event) {
       moveDirection.forward = 0;
       timeoutInstance = setTimeout(() => {
         playerMoveSound.pause();
-      }, 2000);
+      }, 1600);
       break;
 
     case 83: //BACK
       moveDirection.back = 0;
       timeoutInstance = setTimeout(() => {
         playerMoveSound.pause();
-      }, 2000);
+      }, 1600);
       break;
 
     case 65: //LEFT
