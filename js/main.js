@@ -9,10 +9,15 @@ const matrix = new THREE.Matrix4();
 const initalPos = new THREE.Vector3(7, 0, 0);
 
 const levels = [
+  "../blender_models/level0.gltf",
+  "../blender_models/level0-1.gltf",
+  "../blender_models/level0-2.gltf",
+  "../blender_models/level0-3.gltf",
   "../blender_models/level1.gltf",
   "../blender_models/level2.gltf",
 ];
-let currentLevel = 0;
+const savedLevel = parseInt(localStorage.getItem("current-level"));
+let currentLevel = savedLevel ? savedLevel : 0;
 
 let showNextLevelButton = false;
 
@@ -35,6 +40,7 @@ function nextLevel() {
       scene.remove(obj);
     }
   }
+  localStorage.setItem("current-level", currentLevel);
   physicsWorld.removeSoftBody(playerBall.userData.physicsBody);
   addObjects();
 }
