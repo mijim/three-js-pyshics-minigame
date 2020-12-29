@@ -59,17 +59,22 @@ function handleKeyDown(event) {
       break;
 
     case 27: //ESC
-      pauseGame = !pauseGame;
-      if (!pauseGame) {
-        renderFrame();
-        menuContainer.style.display = "none";
-      } else {
-        menuContainer.style.display = "flex";
-      }
+      stopGame();
       break;
   }
 }
-let = timeoutInstance;
+
+function stopGame() {
+  pauseGame = !pauseGame;
+  if (!pauseGame) {
+    renderFrame();
+    menuContainer.style.display = "none";
+  } else {
+    menuContainer.style.display = "flex";
+  }
+}
+
+let timeoutInstance;
 function handleKeyUp(event) {
   let keyCode = event.keyCode;
 

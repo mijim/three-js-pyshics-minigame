@@ -8,6 +8,37 @@ const matrix = new THREE.Matrix4();
 
 const initalPos = new THREE.Vector3(7, 0, 0);
 
+const levels = [
+  "../blender_models/level1.gltf",
+  "../blender_models/level2.gltf",
+];
+let currentLevel = 0;
+
+let showNextLevelButton = false;
+
+function nextLevel() {
+  if (currentLevel === levels.length - 1) {
+    currentLevel = 0;
+  } else {
+    currentLevel += 1;
+  }
+  for (var i = scene.children.length - 1; i >= 0; i--) {
+    obj = scene.children[i];
+    if (obj.type === "Mesh") {
+      if (
+        obj.userData &&
+        obj.userData.physicsBody &&
+        playerBall.userData.physicsBody !== obj.userData.physicsBody
+      ) {
+        physicsWorld.removeRigidBody(obj.userData.physicsBody);
+      }
+      scene.remove(obj);
+    }
+  }
+  physicsWorld.removeSoftBody(playerBall.userData.physicsBody);
+  addObjects();
+}
+
 function changeQuality(quality) {
   if (quality === "low") {
     scene.remove(dirLight);
@@ -97,7 +128,7 @@ function setupGraphics() {
   //Setup the renderer
   renderer = new THREE.WebGLRenderer({ antialias: true });
   renderer.setClearColor(0xbfd1e5);
-  renderer.setPixelRatio(window.devicePixelRatio / 2);
+  renderer.setPixelRatio(1);
   renderer.setSize(window.innerWidth, window.innerHeight);
   document.body.appendChild(renderer.domElement);
 
@@ -118,13 +149,31 @@ function onWindowResize() {
   renderer.setSize(window.innerWidth, window.innerHeight);
 }
 
+function setPlayerTexture(textureUrl) {
+  var texture = new THREE.TextureLoader().load(textureUrl);
+  var material = new THREE.MeshStandardMaterial({
+    map: texture,
+    roughness: 0.4,
+    metalness: 0.7,
+    clearcoat: 0.57,
+    envMaps: "reflection",
+    clearcoatRoughness: 0.6,
+    //emissive: 0x494949,
+  });
+  playerBall.material = material;
+}
+
+let finalPosition = null;
 function addObjects() {
   /** PLAYER BALL */
 
   var volumeMass = 15;
   var sphereGeometry = new THREE.SphereBufferGeometry(1.5, 40, 25);
   sphereGeometry.translate(initalPos.x, initalPos.y, initalPos.z);
-  var texture = new THREE.TextureLoader().load("textures/player_texture.jpg");
+  const savedTexture = localStorage.getItem("player-texture");
+  var texture = new THREE.TextureLoader().load(
+    savedTexture ? savedTexture : "textures/player_texture.jpg"
+  );
   var material = new THREE.MeshStandardMaterial({
     map: texture,
     roughness: 0.4,
@@ -135,45 +184,42 @@ function addObjects() {
     //emissive: 0x494949,
   });
 
-  const loader = new THREE.TextureLoader();
-  playerBall = {};
-  loader.load("textures/player_texture.jpg", function (texture) {
-    material.map = texture;
+  const finalMaterial = new THREE.MeshStandardMaterial({
+    color: 0xe6300b,
+    roughness: 0.4,
+    metalness: 0.7,
+    clearcoat: 0.57,
+    envMaps: "reflection",
+    clearcoatRoughness: 0.6,
+    //emissive: 0x494949,
   });
 
-  const GLTFLoader = new THREE.GLTFLoader();
-  let boxMaterial = new THREE.MeshStandardMaterial({
+  playerBall = {};
+  material.map = texture;
+
+  const glassMaterial = new THREE.MeshStandardMaterial({
     roughness: 0.2,
-    metalness: 0,
+    color: 0x9ce4e6,
+    metalness: 0.2,
+    opacity: 0.4,
     envMaps: "refraction",
     transparent: true,
     reflectivity: 0.5,
     refractionRatio: 0.5,
   });
-  loader.load("textures/Leather_weave_002_basecolor.jpg", function (texture) {
-    boxMaterial.map = texture;
+  const GLTFLoader = new THREE.GLTFLoader();
+  let boxMaterial = new THREE.MeshStandardMaterial({
+    roughness: 0.2,
+    metalness: 0.2,
+    envMaps: "refraction",
+    transparent: true,
+    reflectivity: 0.5,
+    refractionRatio: 0.5,
   });
-  loader.load("textures/Leather_weave_002_normal.jpg", function (texture) {
-    boxMaterial.normalMap = texture;
-  });
-  loader.load("textures/Leather_weave_002_roughness.jpg", function (texture) {
-    boxMaterial.roughnessMap = texture;
-  });
-  loader.load(
-    "textures/Leather_weave_002_ambientOcclusion.jpg",
-    function (texture) {
-      boxMaterial.aoMap = texture;
-    }
-  );
 
   const groundMaterial = new THREE.MeshStandardMaterial({ color: 0x242424 });
-
-  GLTFLoader.load("../blender_models/level1.gltf", (gltf) => {
-    console.log("gltf --> ", gltf);
-
+  GLTFLoader.load(levels[currentLevel], (gltf) => {
     gltf.scene.children.forEach((child) => {
-      console.log("child --> ", child);
-
       const box = createBoxCollider(
         child.scale.x * 2,
         child.scale.y * 2,
@@ -181,76 +227,30 @@ function addObjects() {
         0,
         child.position,
         child.quaternion,
-        child.name === "ground" ? groundMaterial : boxMaterial
+        child.name === "ground"
+          ? groundMaterial
+          : child.name === "glass"
+          ? glassMaterial
+          : child.name === "final"
+          ? finalMaterial
+          : boxMaterial
       );
       box.castShadow = true;
       box.receiveShadow = true;
 
-      // boxMaterial = new THREE.ShaderMaterial({
-      //   uniforms: {},
-      //   vertexShader: sketchVertexShader,
-      //   fragmentShader: sketchFragmentShader,
-      // });
-      // var geo = new THREE.EdgesGeometry(box.geometry);
-      // var mat = new THREE.LineBasicMaterial({ color: 0x000000, linewidth: 12 });
-      // var wireframe = new THREE.LineSegments(geo, mat);
-      // wireframe.renderOrder = 1; // make sure wireframes are rendered 2nd
-      // box.add(wireframe);
-
-      // const line = new MeshLine();
-      // line.setPoints(box.geometry);
-      // line.setPoints(box.geometry, (p) => 2); // makes width 2 * lineWidth
-      // const material = new MeshLineMaterial();
-      // const mesh = new THREE.Mesh(line, material);
-      // scene.add(mesh);
+      if (child.name === "final") {
+        finalPosition = child.position;
+        finalMesh = box;
+      }
+      var geo = new THREE.EdgesGeometry(box.geometry);
+      var mat = new THREE.LineBasicMaterial({ color: 0x000000, linewidth: 12 });
+      var wireframe = new THREE.LineSegments(geo, mat);
+      wireframe.renderOrder = 1; // make sure wireframes are rendered 2nd
+      box.add(wireframe);
     });
     playerBall = createSoftVolume(sphereGeometry, volumeMass, 250, material);
     scene.add(playerBall);
   });
-
-  /** GROUND */
-  // pos.set(0, -0.5, 0);
-  // quat.set(0, 0, 0, 1);
-  // var ground = createBoxCollider(
-  //   100,
-  //   1,
-  //   100,
-  //   0,
-  //   pos,
-  //   quat,
-  //   new THREE.MeshPhongMaterial({ color: 0xdbc795 })
-  // );
-  // ground.castShadow = true;
-  // ground.receiveShadow = true;
-
-  /** OBSTACLES */
-  // pos.set(0, -0.5, 0);
-  // quat.setFromAxisAngle(new THREE.Vector3(0, 0, 1), (10 * Math.PI) / 180);
-  // var ground = createBoxCollider(
-  //   40,
-  //   1,
-  //   1,
-  //   0,
-  //   pos,
-  //   quat,
-  //   new THREE.MeshPhongMaterial({ color: 0x363535 })
-  // );
-  // ground.castShadow = true;
-  // ground.receiveShadow = true;
-
-  // pos.set(15, 2, 10);
-  // quat.setFromAxisAngle(new THREE.Vector3(0, 0, 1), Math.PI / 360);
-  // var ground = createBoxCollider(
-  //   1,
-  //   1,
-  //   40,
-  //   0,
-  //   pos,
-  //   quat,
-  //   new THREE.MeshPhongMaterial({ color: 0x363535 })
-  // );
-  // ground.castShadow = true;
-  // ground.receiveShadow = true;
 }
 
 function updatePhysics(deltaTime) {
@@ -315,7 +315,6 @@ function updatePhysics(deltaTime) {
   //     }
   //   }
 }
-
 function renderFrame() {
   if (pauseGame) return;
   let deltaTime = clock.getDelta();
@@ -361,6 +360,44 @@ function cameraUpdate() {
   }
   if (playerBall.calcPosition) {
     cameraGroup.position.lerp(playerBall.calcPosition, 0.2);
+    const xDiff = playerBall.calcPosition.x - finalPosition.x;
+    const yDiff = playerBall.calcPosition.y - finalPosition.y;
+    const zDiff = playerBall.calcPosition.z - finalPosition.z;
+    const prevShowLevelButton = showNextLevelButton;
+
+    if (xDiff < 3 && xDiff > -3 && zDiff < 3 && zDiff > -3 && yDiff > 1) {
+      showNextLevelButton = true;
+    } else {
+      showNextLevelButton = false;
+    }
+
+    if (!prevShowLevelButton && showNextLevelButton) {
+      const nextLevelButton = document.getElementById("next-level-button");
+      nextLevelButton.style.display = "inherit";
+      const finalMaterial = new THREE.MeshStandardMaterial({
+        color: 0x96f76f,
+        roughness: 0.4,
+        metalness: 0.7,
+        clearcoat: 0.57,
+        envMaps: "reflection",
+        clearcoatRoughness: 0.6,
+        //emissive: 0x494949,
+      });
+      finalMesh.material = finalMaterial;
+    } else if (prevShowLevelButton && !showNextLevelButton) {
+      const nextLevelButton = document.getElementById("next-level-button");
+      nextLevelButton.style.display = "none";
+      const finalMaterial = new THREE.MeshStandardMaterial({
+        color: 0xe6300b,
+        roughness: 0.4,
+        metalness: 0.7,
+        clearcoat: 0.57,
+        envMaps: "reflection",
+        clearcoatRoughness: 0.6,
+        //emissive: 0x494949,
+      });
+      finalMesh.material = finalMaterial;
+    }
   }
 }
 
@@ -374,7 +411,10 @@ function restartBall() {
   var volumeMass = 15;
   var sphereGeometry = new THREE.SphereBufferGeometry(1.5, 40, 25);
   sphereGeometry.translate(initalPos.x, initalPos.y, initalPos.z);
-  var texture = new THREE.TextureLoader().load("textures/player_texture.jpg");
+  const savedTexture = localStorage.getItem("player-texture");
+  var texture = new THREE.TextureLoader().load(
+    savedTexture ? savedTexture : "textures/player_texture.jpg"
+  );
   var material = new THREE.MeshStandardMaterial({
     map: texture,
     roughness: 0.4,
@@ -382,13 +422,8 @@ function restartBall() {
     envMaps: "reflection",
     //emissive: 0x494949,
   });
-
-  const loader = new THREE.TextureLoader();
-  loader.load("textures/player_texture.jpg", function (texture) {
-    material.map = texture;
-    playerBall = createSoftVolume(sphereGeometry, volumeMass, 250, material);
-    scene.add(playerBall);
-  });
+  playerBall = createSoftVolume(sphereGeometry, volumeMass, 250, material);
+  scene.add(playerBall);
 }
 
 function moveBall() {

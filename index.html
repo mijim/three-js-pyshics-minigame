@@ -11,6 +11,14 @@
       body {
         margin: 0;
         font-family: "Orbitron", sans-serif;
+        height: 100vh;
+        width: 100vw;
+        overflow: hidden;
+      }
+
+      iframe {
+        position: fixed;
+        left: -2000px;
       }
 
       #menu-container {
@@ -21,9 +29,15 @@
         height: 100vh;
         background: rgba(0, 0, 0, 0.4);
         backdrop-filter: blur(12px);
+        justify-content: space-around;
+        align-items: center;
+      }
+
+      .section-container {
+        display: flex;
+        flex-direction: column;
         justify-content: center;
         align-items: center;
-        flex-direction: column;
       }
 
       .title {
@@ -31,6 +45,14 @@
         color: white;
         font-weight: bold;
         margin-bottom: 30px;
+      }
+
+      #next-level-button {
+        z-index: 1;
+        display: none;
+        position: fixed;
+        bottom: 40px;
+        left: 40px;
       }
 
       .button {
@@ -51,6 +73,20 @@
         );
         background: rgba(0, 0, 0, 0.4);
         padding: 4px;
+      }
+
+      .draw-canvas-container {
+        display: flex;
+      }
+
+      #texture-canvas {
+        cursor: pointer;
+        border: 4px solid rgba(0, 0, 0, 0.4);
+      }
+
+      .draw-tools {
+        display: flex;
+        flex-direction: column;
       }
 
       .button-inner {
@@ -103,23 +139,44 @@
   </head>
   <body>
     <div id="menu-container">
-      <div class="title">Quality</div>
-      <div class="button">
-        <div
-          id="high-quality-button"
-          class="button-inner"
-          onclick="handleQualityClick('high')"
-        >
-          High
+      <div class="section-container">
+        <div class="title">Quality</div>
+        <div class="button">
+          <div
+            id="high-quality-button"
+            class="button-inner"
+            onclick="handleQualityClick('high')"
+          >
+            High
+          </div>
+        </div>
+        <div class="button">
+          <div
+            id="low-quality-button"
+            class="button-inner selected-button"
+            onclick="handleQualityClick('low')"
+          >
+            Low
+          </div>
         </div>
       </div>
-      <div class="button">
-        <div
-          id="low-quality-button"
-          class="button-inner selected-button"
-          onclick="handleQualityClick('low')"
-        >
-          Low
+      <div class="section-container">
+        <div class="title">Player edit</div>
+        <div class="draw-canvas-container">
+          <canvas id="texture-canvas" width="400" height="400"></canvas>
+          <div class="draw-tools">
+            <input
+              type="range"
+              min="2"
+              max="100"
+              value="5"
+              class="slider"
+              id="draw-stroke-slider"
+            />
+            <input type="color" id="draw-color-picker" value="#00000000" />
+            <button id="draw-restart-button">RESTART</button>
+            <button id="draw-save-button">SAVE</button>
+          </div>
         </div>
       </div>
     </div>
@@ -139,6 +196,15 @@
       </div>
     </div>
 
+    <iframe
+      width="560"
+      height="315"
+      src="https://www.youtube.com/embed/ownHh9QIsRk?controls=0&autoplay=1"
+      frameborder="0"
+      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+      allowfullscreen
+    ></iframe>
+
     <script src="js/three.js"></script>
     <script src="js/GLTFLoader.js"></script>
     <script src="js/OrbitControls.js"></script>
@@ -147,6 +213,7 @@
     <script src="shaders/sketch/shader.js"></script>
     <script src="js/controls.js"></script>
     <script src="js/create.js"></script>
+    <script src="js/texture_editor.js"></script>
     <script src="js/main.js"></script>
     <script>
       //variable declaration
@@ -160,8 +227,15 @@
         addObjects();
         setupEventHandlers();
         renderFrame();
+        textureEditorInit();
         stats();
       }
     </script>
+
+    <div class="button" id="next-level-button">
+      <div id="low-quality-button" class="button-inner" onclick="nextLevel()">
+        NEXT LEVEL
+      </div>
+    </div>
   </body>
 </html>
