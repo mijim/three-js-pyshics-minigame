@@ -18,11 +18,15 @@
 
       iframe {
         position: fixed;
-        left: -2000px;
+        right: 0px;
+        bottom: 0px;
+        border: 6px solid rgba(0, 0, 0, 0.8);
+        border-right: 3px solid rgba(0, 0, 0, 0.8);
+        border-bottom: 3px solid rgba(0, 0, 0, 0.8);
       }
 
       #menu-container {
-        display: none;
+        display: flex;
         position: fixed;
         width: 100vw;
         z-index: 2;
@@ -34,7 +38,7 @@
       }
 
       .section-container {
-        display: flex;
+        display: none;
         flex-direction: column;
         justify-content: center;
         align-items: center;
@@ -139,6 +143,14 @@
   </head>
   <body>
     <div id="menu-container">
+      <iframe
+        width="200"
+        height="150"
+        src="https://www.youtube.com/embed/ownHh9QIsRk?controls=0&autoplay=1"
+        frameborder="0"
+        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+        allowfullscreen
+      ></iframe>
       <div class="section-container">
         <div class="title">Quality</div>
         <div class="button">
@@ -179,6 +191,11 @@
           </div>
         </div>
       </div>
+      <div id="start-container">
+        <div class="button">
+          <div class="button-inner" onclick="play()">Play</div>
+        </div>
+      </div>
     </div>
 
     <div class="legend-container">
@@ -196,15 +213,6 @@
       </div>
     </div>
 
-    <iframe
-      width="560"
-      height="315"
-      src="https://www.youtube.com/embed/ownHh9QIsRk?controls=0&autoplay=1"
-      frameborder="0"
-      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-      allowfullscreen
-    ></iframe>
-
     <script src="js/three.js"></script>
     <script src="js/GLTFLoader.js"></script>
     <script src="js/OrbitControls.js"></script>
@@ -217,18 +225,27 @@
     <script src="js/main.js"></script>
     <script>
       //variable declaration
-
+      const menuC = document.getElementById("menu-container");
+      const startContainer = document.getElementById("start-container");
+      const menuSections = document.getElementsByClassName("section-container");
       //Ammojs Initialization
-      Ammo().then(start);
+      function play() {
+        startContainer.style.display = "none";
+        menuC.style.display = "none";
+        Array.from(menuSections).forEach((section) => {
+          section.style.display = "flex";
+        });
+        Ammo().then(start);
 
-      function start() {
-        setupPhysicsWorld();
-        setupGraphics();
-        addObjects();
-        setupEventHandlers();
-        renderFrame();
-        textureEditorInit();
-        stats();
+        function start() {
+          setupPhysicsWorld();
+          setupGraphics();
+          addObjects();
+          setupEventHandlers();
+          renderFrame();
+          textureEditorInit();
+          stats();
+        }
       }
     </script>
 
