@@ -11,7 +11,7 @@ function setupEventHandlers() {
   window.addEventListener("keydown", handleKeyDown, false);
   window.addEventListener("keyup", handleKeyUp, false);
   settings = {
-    quality: "low",
+    quality: "high",
   };
 }
 

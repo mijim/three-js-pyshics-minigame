@@ -130,6 +130,7 @@ function setupGraphics() {
   dirLight.shadow.camera.bottom = -d;
 
   dirLight.shadow.camera.far = 13500;
+  scene.add(dirLight);
 
   //Setup the renderer
   renderer = new THREE.WebGLRenderer({ antialias: true });
